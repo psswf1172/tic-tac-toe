@@ -1,0 +1,118 @@
+#Tic-Tac-Triumph
+
+class Game
+
+  def initialize
+    @player = Player.new
+    welcome
+    start_game
+  end
+
+  def welcome
+    print "Welcome to Tic-Tac-Toe -- the game of Xs and Os!"
+    end
+
+  def start_game
+    take_turn until @player.game_over
+  end
+
+  def take_turn
+    @player.turn
+  end
+
+end
+
+class Player
+  attr_reader :game_over
+
+  def initialize
+    @board = Board.new
+    @game_over = false
+  end
+
+  def turn
+    @board.show_board
+    @board.switch_symbol
+    @player == "Player1" ? @player = "Player2" : @player = "Player1"
+    player_move
+    player_won
+    draw
+  end
+
+  def player_move
+    print "#{@player}(#{@board.symbol}), choose your square."
+    square = gets.to_i
+    @board.check_square?(square) ? @board.save_square(square) : player_move
+  end
+
+  def player_won
+    if @board.game_won?
+      @game_over = true
+      print "#{@player}(#{@board.symbol}) won! \n"
+      @board.show_board
+    end
+  end
+
+  def draw
+    if @board.squares_full?
+      @game_over = true
+      print "It's a draw!\n"
+      @board.show_board
+    end
+  end
+
+end
+
+class Board
+  attr_reader :symbol
+
+  def initialize
+    @board = (1..9).to_a
+    @winning_squares = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+  end
+
+  def switch_symbol
+    @symbol == "X" ? @symbol = "O" : @symbol = "X"
+  end
+
+  def show_board
+    print "\n"
+    (0..6).step(3) { |n| make_board(n)}
+    print "\n"
+  end
+
+  def make_board(n)
+    print row(n).join(" | "), row_separator(n)
+  end
+
+  def row(n)
+    @board[n..n + 2]
+  end
+
+  def row_separator(n)
+    n == 6 ? "  " : "\n--+---+--\n"
+  end
+
+  def check_square?(square)
+    @board.include?(square)
+  end
+
+  def save_square(square)
+    @board[@board.index(square)] = @symbol
+  end
+
+  def game_won?
+    @winning_squares.any? { |win| win_check?(win)}
+  end
+
+  def win_check?(win)
+    win.all? { |square| @board[square] == @symbol}
+  end
+
+  def squares_full?
+    @board.all? {|square| square.is_a? String}
+  end
+
+end
+
+game = Game.new
